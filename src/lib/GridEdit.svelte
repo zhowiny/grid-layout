@@ -1,75 +1,46 @@
 <script>
-import {onMount} from 'svelte'
 import GridControlBar from './GridControlBar.svelte'
-
-const useRAF = (callback = () => {}, condition = () => false) => {
-	const fn = (t) => {
-		if (condition()) return
-		callback()
-		requestAnimationFrame(fn)
-	}
-	requestAnimationFrame(fn)
-}
+import {useRAF} from './utils.js'
 
 export let grid = null
 
-$: colsStore = grid?.gridStore?.colsStore
-$: colTemplate = grid?.gridStore?.colTemplate
-$: rowsStore = grid?.gridStore?.rowsStore
-$: rowTemplate = grid?.gridStore?.rowTemplate
-$: layoutStore = grid?.gridStore?.layoutStore
+$: store = grid?.gridStore
+$: gridState = store.gridState
+$: layout = $gridState.children
+$: cols = $gridState.col.data
+$: rows = $gridState.row.data
+$: colTemplate = $gridState.colTemplate
+$: rowTemplate = $gridState.rowTemplate
+$: gap = $gridState.gap
 
 let target
-useRAF(() => target = grid?.container.getBoundingClientRect())
+useRAF(() => target = grid?.container?.getBoundingClientRect())
 
-
-// $: console.log(target?.y)
-
-const updateItem = (dataSource, data, index) => {
-	dataSource.update(d => {
-		d[index] = data
-    return d
-  })
+const updateItem = (type, index, data) => {
+  store?.updateData(type, index, data)
 }
-const deleteItem = (dataSource, index) => {
-	dataSource.update(d => {
-		d.splice(index, 1)
-		return d
-	})
+const deleteItem = (type, index) => {
+  store?.deleteData(type, index)
 }
-
-const addCol = () => {
-	const len = $colsStore.length
-	updateItem(colsStore, {name: `key-${len}`, value: 100, unit: 'px'}, len)
-}
-const addRow = () => {
-	const len = $rowsStore.length
-	updateItem(rowsStore, {name: `key-${len}`, value: 24, unit: 'px'}, len)
-}
-
-// onMount(() => {
-// 	console.log(111)
-// 	rect = container?.getBoundingClientRect()
-// })
-
-// $: console.log(target?.x, target?.y)
 
 </script>
 
 
 <GridControlBar
   style="left:{target?.x}px;top:{target?.y}px;width:{target?.width}px;"
-  data={colsStore}
+  data={cols}
   template={colTemplate}
-  gap={1}
+  gap={gap}
+  on:change={({detail}) => updateItem('col', detail.index, detail.data)}
 />
 <GridControlBar
   style="left:{target?.x}px;top:{target?.y}px;height:{target?.height}px;"
-  data={rowsStore}
+  data={rows}
   template={rowTemplate}
   mode="vertical"
   isLimited={false}
-  gap={1}
+  gap={gap}
+  on:change={({detail}) => updateItem('row', detail.index, detail.data)}
 />
 <div class="mockup-window border bg-base-100 h-screen overflow-y-auto">
   <div class="p-4 pt-0">
@@ -78,22 +49,29 @@ const addRow = () => {
         <span>grid-template-cols</span>
         <button
           class="btn btn-primary btn-outline rounded-sm btn-xs"
-          on:click={addCol}
+          on:click={() => {
+            updateItem('col', cols.length, {name: `key-${cols.length}`, value: 100, unit: 'px'})
+          }}
         >Add</button>
       </div>
-      {#if $colsStore}
-        {#each $colsStore as item, i(item.name)}
+      {#if cols}
+        {#each cols as item, i(item.name)}
           <div class="join bordered">
-            <input bind:value={item.value} type="number" class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm" />
+            <input
+              value={item.value}
+              type="number"
+              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              on:input={({target}) => {
+                const value = Number(target.value)
+                updateItem('col', i, {...item, value: isNaN(value) ? 0 : value})
+              }}
+            />
             <select
               class="join-item select select-bordered border-gray-500 select-sm w-20"
-              bind:value={item.unit}
+              value={item.unit}
               on:change={({target}) => {
-								if (target.value === 'px') {
-									item.value = 100
-								} else if (target.value === 'fr') {
-									item.value = 1
-								}
+                const unit = target.value
+                updateItem('col', i, {...item, value: unit === 'px' ? 100 : 1, unit})
               }}
             >
               <option value="px">px</option>
@@ -102,7 +80,7 @@ const addRow = () => {
             </select>
             <button
               class="join-item btn btn-sm btn-outline"
-              on:click={() => deleteItem(colsStore, i)}
+              on:click={() => deleteItem('col', i)}
             >X</button>
           </div>
         {/each}
@@ -113,22 +91,29 @@ const addRow = () => {
         <span>grid-template-rows</span>
         <button
           class="btn btn-primary btn-outline rounded-sm btn-xs"
-          on:click={addRow}
+          on:click={() => {
+            updateItem('row', rows.length, {name: `key-${rows.length}`, value: 24, unit: 'px'})
+          }}
         >Add</button>
       </div>
-      {#if $rowsStore}
-        {#each $rowsStore as item, i(item.name)}
+      {#if rows}
+        {#each rows as item, i(item.name)}
           <div class="join bordered">
-            <input bind:value={item.value} type="number" class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm" />
+            <input
+              value={item.value}
+              type="number"
+              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              on:input={({target}) => {
+                const value = Number(target.value)
+                updateItem('row', i, {...item, value: isNaN(value) ? 0 : value})
+              }}
+            />
             <select
               class="join-item select select-bordered border-gray-500 select-sm w-20"
-              bind:value={item.unit}
+              value={item.unit}
               on:change={({target}) => {
-								if (target.value === 'px') {
-									item.value = 100
-								} else if (target.value === 'fr') {
-									item.value = 1
-								}
+                const unit = target.value
+                updateItem('row', i, {...item, value: unit === 'px' ? 100 : 1, unit})
               }}
             >
               <option value="px">px</option>
@@ -137,7 +122,7 @@ const addRow = () => {
             </select>
             <button
               class="join-item btn btn-sm btn-outline"
-              on:click={() => deleteItem(rowsStore, i)}
+              on:click={() => deleteItem('row', i)}
             >X</button>
           </div>
         {/each}
@@ -149,20 +134,49 @@ const addRow = () => {
         <span>children grid-area</span>
         <button
           class="btn btn-primary btn-outline rounded-sm btn-xs"
-          on:click={addRow}
         >Add</button>
       </div>
-      {#if $layoutStore}
-        {#each $layoutStore as item, i(item.key)}
+      {#if layout}
+        {#each layout as item, i(item.key)}
           <div class="join bordered">
-            <input bind:value={item.x} type="number" class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm" />
-            <input bind:value={item.y} type="number" class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm" />
-            <input bind:value={item.w} type="number" class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm" />
-            <input bind:value={item.h} type="number" class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm" />
-
+            <input
+              type="number"
+              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              value={item.x}
+              on:input={({target}) => {
+                const value = Number(target.value)
+                updateItem('layout', i, {...item, x: isNaN(value) ? 0 : value})
+              }}
+            />
+            <input
+              type="number"
+              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              value={item.y}
+              on:input={({target}) => {
+                const value = Number(target.value)
+                updateItem('layout', i, {...item, y: isNaN(value) ? 0 : value})
+              }}
+            />
+            <input
+              type="number"
+              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              value={item.w}
+              on:input={({target}) => {
+                const value = Number(target.value)
+                updateItem('layout', i, {...item, w: isNaN(value) ? 0 : value})
+              }}
+            />
+            <input
+              type="number"
+              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              value={item.h}
+              on:input={({target}) => {
+                const value = Number(target.value)
+                updateItem('layout', i, {...item, h: isNaN(value) ? 0 : value})
+              }}
+            />
             <button
               class="join-item btn btn-sm btn-outline"
-              on:click={() => deleteItem(layoutStore, i)}
             >X</button>
           </div>
         {/each}

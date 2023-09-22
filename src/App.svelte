@@ -8,7 +8,7 @@ let arr = Array.from({length: 5}, (_, i) => ({key: String.fromCharCode(n + i), i
 let layout = getLayoutData()
 let l2 = getLayoutData()
 let cols = 5
-let rows = 2
+let rows = 0
 
 let grid = null
 let gridChild = null
@@ -41,9 +41,11 @@ const handleClick = () => {
   </aside>
   <main class="place-self-center p-8 w-full" >
 <!--    <button class="btn" on:click={handleClick}>btn</button>-->
-    <GridLayout bind:this={grid} cols="{cols}" rows="{rows}" layout="{layout}" gap={1}>
+    <GridLayout bind:this={grid} cols="{cols}" rows="{rows}" layout="{layout}" gap={20}>
       {#each arr as {key, i}}
-        <div class="bg-gray-600 first:bg-primary-focus/30"></div>
+        <div class="bg-gray-600 first:bg-primary-focus/30">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto autem blanditiis dolore ducimus eligendi enim expedita explicabo fuga, fugiat mollitia nesciunt quas quidem reiciendis repudiandae tempora ullam vitae voluptas voluptatibus!
+        </div>
       {/each}
       <!--<div class="bg-secondary-focus/30" data-grid="-3/-3/span 3/span 2">
 

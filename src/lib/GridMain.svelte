@@ -2,11 +2,18 @@
 import {getContext} from 'svelte'
 import {GRID_STORE_KEY} from '../store/index.js'
 
-const {layoutStore, rowTemplate, colTemplate} = getContext(GRID_STORE_KEY)
+const {layoutStore, gridState} = getContext(GRID_STORE_KEY)
 export let gap = {x: 0, y: 0}
 
 $: gapX = typeof gap === 'number' ? gap : gap.x
 $: gapY = typeof gap === 'number' ? gap : gap.y
+
+$: colTemplate = $gridState.colTemplate
+$: rowTemplate = $gridState.rowTemplate
+
+const childClickEvent = (target, data) => {
+  console.log(target, data)
+}
 
 function childArea(node, layout) {
   updateChildArea(layout)
@@ -22,6 +29,7 @@ function childArea(node, layout) {
 				const {x, y, w, h} = layout[i] || {}
 				child.style.gridArea = `${y}/${x}/span ${h}/span ${w}`
       }
+      child.addEventListener('click', () => childClickEvent(child, layout[i]))
     }
   }
 
@@ -34,7 +42,7 @@ function childArea(node, layout) {
 <div
   use:childArea={$layoutStore}
   class="grid-container {$$restProps.class || ''}"
-  style="grid-template-columns: {$colTemplate};grid-template-rows: {$rowTemplate};column-gap: {gapX}px;row-gap: {gapY}px;"
+  style="grid-template-columns: {colTemplate};grid-template-rows: {rowTemplate};column-gap: {gapX}px;row-gap: {gapY}px;"
 >
   <slot></slot>
 </div>

@@ -19,8 +19,8 @@ export const getMaxColsOrMaxRows = (layout, colspan, rowspan) => {
 export const generateCols = (cols) => {
   return genArr(cols, (_, i) => ({
     name: `${PREFIX}c-${i}`,
-    value: 100,
-    unit: 'px',
+    value: 1,
+    unit: 'fr',
   }))
 }
 export const generateRows = (rows) => {
@@ -47,7 +47,7 @@ export const generateRows = (rows) => {
 export const getColsOrRows = (layout, colspan, rowspan) => {
   const {maxCols, maxRows} = getMaxColsOrMaxRows(layout, colspan, rowspan)
 
-  const rows = Math.max(maxRows, rowspan)
+  const rows = rowspan ? Math.max(maxRows, rowspan) : 0
 
   const rowsArr = generateRows(rows)
   const colsArr = generateCols(maxCols)
@@ -66,4 +66,21 @@ export const getLayoutData = () => {
     {key: 'article', x: 5, y: 2, w: 1, h: 1},
     {key: 'footer', x: 3, y: 3, w: 3, h: 1},
   ]
+}
+
+
+export const useRAF = (callback = () => {}, condition = () => false) => {
+  const fn = () => {
+    if (condition()) return
+    callback()
+    requestAnimationFrame(fn)
+  }
+  requestAnimationFrame(fn)
+}
+
+export const PXToFR = (val, width, sumFR) => {
+  return parseFloat((val / (width / sumFR)).toFixed(1))
+}
+export const PXToPCT = (val, width) => {
+  return parseFloat((val / (width / 100)).toFixed(1))
 }
