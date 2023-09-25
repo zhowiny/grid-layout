@@ -1,47 +1,53 @@
 <script>
-import GridControlBar from './GridControlBar.svelte'
-import {useRAF} from './utils.js'
+  import GridControlBar from './GridControlBar.svelte'
 
-export let grid = null
+  export let grid = null
 
-$: store = grid?.gridStore
-$: gridState = store.gridState
-$: layout = $gridState.children
-$: cols = $gridState.col.data
-$: rows = $gridState.row.data
-$: colTemplate = $gridState.colTemplate
-$: rowTemplate = $gridState.rowTemplate
-$: gap = $gridState.gap
+  $: store = grid?.gridStore
+  $: gridState = store.gridState
+  $: layout = $gridState.children
+  $: cols = $gridState.col
+  $: rows = $gridState.row
+  $: target = grid?.container?.getBoundingClientRect()
 
-let target
-useRAF(() => target = grid?.container?.getBoundingClientRect())
+// let target
+// useRAF(() => target = grid?.container?.getBoundingClientRect())
 
-const updateItem = (type, index, data) => {
-  store?.updateData(type, index, data)
-}
-const deleteItem = (type, index) => {
-  store?.deleteData(type, index)
-}
+  $: childrenElement = grid?.container?.children[0].children
+
+  $: scrollTop = document.scrollingElement.scrollTop
+  $: scrollLeft = document.scrollingElement.scrollLeft
+
+  const updateItem = (type, index, data) => {
+    store?.updateData(type, index, data)
+  }
+  const deleteItem = (type, index) => {
+    store?.deleteData(type, index)
+  }
 
 </script>
 
+<div
+  class="grid absolute z-10 opacity-80 pointer-events-none"
+  style="left:{target?.x + scrollLeft}px;top:{target?.y + scrollTop}px;height:{$gridState.height}px;width:{$gridState.width}px;grid-template-columns: {cols.template};grid-template-rows: {rows.template};column-gap: {cols.gap}px;row-gap: {rows.gap}px;"
+>
+  <GridControlBar
+    dataSource={cols}
+    width={$gridState.width}
+    on:change={({detail}) => updateItem('col', detail.index, detail.data)}
+  />
+  <GridControlBar
+    dataSource={rows}
+    width={$gridState.height}
+    mode="vertical"
+    isLimited={false}
+    on:change={({detail}) => updateItem('row', detail.index, detail.data)}
+  />
 
-<GridControlBar
-  style="left:{target?.x}px;top:{target?.y}px;width:{target?.width}px;"
-  data={cols}
-  template={colTemplate}
-  gap={gap}
-  on:change={({detail}) => updateItem('col', detail.index, detail.data)}
-/>
-<GridControlBar
-  style="left:{target?.x}px;top:{target?.y}px;height:{target?.height}px;"
-  data={rows}
-  template={rowTemplate}
-  mode="vertical"
-  isLimited={false}
-  gap={gap}
-  on:change={({detail}) => updateItem('row', detail.index, detail.data)}
-/>
+  {#each layout as item, i(item.key)}
+    <div class="bg-gray-300" style="grid-area: {childrenElement[i].style.gridArea};width: {childrenElement[i].clientWidth}px;height: {childrenElement[i].clientHeight}px;"></div>
+  {/each}
+</div>
 <div class="mockup-window border bg-base-100 h-screen overflow-y-auto">
   <div class="p-4 pt-0">
     <div class="flex flex-col gap-1 w-full">
@@ -50,14 +56,16 @@ const deleteItem = (type, index) => {
         <button
           class="btn btn-primary btn-outline rounded-sm btn-xs"
           on:click={() => {
-            updateItem('col', cols.length, {name: `key-${cols.length}`, value: 100, unit: 'px'})
+            updateItem('col', cols.data.length, {name: `key-${cols.data.length}`, value: 100, unit: 'px'})
           }}
-        >Add</button>
+        >Add
+        </button>
       </div>
-      {#if cols}
-        {#each cols as item, i(item.name)}
+      {#if cols.data}
+        {#each cols.data as item, i(item.name)}
           <div class="join bordered">
             <input
+              disabled={item.value === null}
               value={item.value}
               type="number"
               class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
@@ -71,17 +79,25 @@ const deleteItem = (type, index) => {
               value={item.unit}
               on:change={({target}) => {
                 const unit = target.value
-                updateItem('col', i, {...item, value: unit === 'px' ? 100 : 1, unit})
+                const isValidUnit = ['px','fr','%'].includes(unit)
+                const defaultValue = unit === 'px' ? 100 : 1
+                updateItem('col', i, {
+                  ...item,
+                  value: isValidUnit ? defaultValue : null,
+                  unit
+                })
               }}
             >
               <option value="px">px</option>
               <option value="fr">fr</option>
               <option value="%">%</option>
+              <option value="auto">auto</option>
             </select>
             <button
               class="join-item btn btn-sm btn-outline"
               on:click={() => deleteItem('col', i)}
-            >X</button>
+            >X
+            </button>
           </div>
         {/each}
       {/if}
@@ -92,14 +108,16 @@ const deleteItem = (type, index) => {
         <button
           class="btn btn-primary btn-outline rounded-sm btn-xs"
           on:click={() => {
-            updateItem('row', rows.length, {name: `key-${rows.length}`, value: 24, unit: 'px'})
+            updateItem('row', rows.data.length, {name: `key-${rows.data.length}`, value: 24, unit: 'px'})
           }}
-        >Add</button>
+        >Add
+        </button>
       </div>
-      {#if rows}
-        {#each rows as item, i(item.name)}
+      {#if rows.data}
+        {#each rows.data as item, i(item.name)}
           <div class="join bordered">
             <input
+              disabled={item.value === null}
               value={item.value}
               type="number"
               class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
@@ -113,17 +131,25 @@ const deleteItem = (type, index) => {
               value={item.unit}
               on:change={({target}) => {
                 const unit = target.value
-                updateItem('row', i, {...item, value: unit === 'px' ? 100 : 1, unit})
+                const isValidUnit = ['px','fr','%'].includes(unit)
+                const defaultValue = unit === 'px' ? 100 : 1
+                updateItem('row', i, {
+                  ...item,
+                  value: isValidUnit ? defaultValue : null,
+                  unit
+                })
               }}
             >
               <option value="px">px</option>
               <option value="fr">fr</option>
               <option value="%">%</option>
+              <option value="auto">auto</option>
             </select>
             <button
               class="join-item btn btn-sm btn-outline"
               on:click={() => deleteItem('row', i)}
-            >X</button>
+            >X
+            </button>
           </div>
         {/each}
       {/if}
@@ -134,7 +160,8 @@ const deleteItem = (type, index) => {
         <span>children grid-area</span>
         <button
           class="btn btn-primary btn-outline rounded-sm btn-xs"
-        >Add</button>
+        >Add
+        </button>
       </div>
       {#if layout}
         {#each layout as item, i(item.key)}
@@ -177,7 +204,8 @@ const deleteItem = (type, index) => {
             />
             <button
               class="join-item btn btn-sm btn-outline"
-            >X</button>
+            >X
+            </button>
           </div>
         {/each}
       {/if}

@@ -25,36 +25,50 @@ const handleResize = ({type, detail}) => {
 </script>
 
 <div
-  class="control-item {isVertical ? '[writing-mode:vertical-lr]' : ''}"
+  class="control-item  {isVertical ? 'vertical' : 'horizontal'}"
   bind:clientWidth={w}
   bind:clientHeight={h}
-  style="background: hsl(10,5%,26%);"
+  style="{$$restProps.style};background: hsl(10,5%,26%);"
 >
-  {detail.value}{detail.unit}
+  {detail.value ?? ''}{detail.unit}
   <div
     use:resizable
     on:start={handleResize}
     on:change={handleResize}
     on:end={handleResize}
-    class="resize-bar {isVertical ? 'vertical' : 'horizontal'}"
+    class="resize-bar"
   ></div>
 </div>
 
 <style lang="scss" module>
 .control-item {
-  @apply relative select-none overflow-x-hidden;
-}
-.resize-bar {
   @apply
-  absolute z-10 right-0
-  bg-gray-300
-  box-content bg-clip-content
+  pointer-events-auto
+  relative select-none
+  overflow-x-hidden
+  text-xs leading-3
   transform;
+
+  .resize-bar {
+    @apply
+    absolute z-10 right-0
+    bg-gray-300
+    box-content bg-clip-content
+    transform;
+  }
+
   &.horizontal {
-    @apply top-0 w-px h-full px-0.5 translate-x-1/2 cursor-ew-resize;
+    @apply h-3 -translate-y-full;
+    .resize-bar {
+      @apply top-0 w-px h-full px-0.5 translate-x-1/2 cursor-ew-resize;
+    }
   }
   &.vertical {
-    @apply bottom-0 w-full h-px py-0.5 translate-y-1/2 cursor-ns-resize;
+    @apply [writing-mode:vertical-lr] w-3 -translate-x-full;
+    .resize-bar {
+      @apply bottom-0 w-full h-px py-0.5 translate-y-1/2 cursor-ns-resize;
+    }
   }
 }
+
 </style>

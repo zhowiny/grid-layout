@@ -11,19 +11,22 @@ export let layout = []
 export let wrapperClass = ''
 export let gap = 4
 
+export let width = 0
+export let height = 0
+export let container
+
 export const gridStore = createGridStore({
   layout,
   cols,
   rows,
   gap,
+  width,
+  height,
 })
 setContext(GRID_STORE_KEY, gridStore)
 
 $: gridStore.reset(layout, cols, rows)
-
-export let width
-export let height
-export let container
+$: gridStore.updateSize(width, height)
 
 </script>
 

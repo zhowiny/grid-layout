@@ -26,8 +26,8 @@ export const generateCols = (cols) => {
 export const generateRows = (rows) => {
   return genArr(rows, (_, i) => ({
     name: `${PREFIX}r-${i}`,
-    value: 24,
-    unit: 'px',
+    value: null,
+    unit: 'auto',
   }))
 }
 // export const generateAreas = (layout, cols, rows) => {
@@ -47,7 +47,8 @@ export const generateRows = (rows) => {
 export const getColsOrRows = (layout, colspan, rowspan) => {
   const {maxCols, maxRows} = getMaxColsOrMaxRows(layout, colspan, rowspan)
 
-  const rows = rowspan ? Math.max(maxRows, rowspan) : 0
+  const rows = Math.max(maxRows, rowspan)
+  // const rows = rowspan ? Math.max(maxRows, rowspan) : 0
 
   const rowsArr = generateRows(rows)
   const colsArr = generateCols(maxCols)
@@ -78,9 +79,10 @@ export const useRAF = (callback = () => {}, condition = () => false) => {
   requestAnimationFrame(fn)
 }
 
+export const toFixed = (v, n = 1) => parseFloat(v.toFixed(n))
 export const PXToFR = (val, width, sumFR) => {
-  return parseFloat((val / (width / sumFR)).toFixed(1))
+  return toFixed(val / (width / sumFR))
 }
 export const PXToPCT = (val, width) => {
-  return parseFloat((val / (width / 100)).toFixed(1))
+  return toFixed(val / (width / 100))
 }
