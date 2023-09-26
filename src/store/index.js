@@ -90,7 +90,6 @@ export function createGridStore(options = {}) {
   }
 
   const updateSize = (w, h) => {
-    // console.log('update size', w, h)
     updateData('size', 'width', w)
     updateData('size', 'height', h)
   }

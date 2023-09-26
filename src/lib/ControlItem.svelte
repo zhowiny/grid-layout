@@ -4,6 +4,7 @@ import {resizable} from './resizable'
 
 export let mode = 'horizontal'
 export let detail
+export let length = 0
 
 $: isVertical = mode === 'vertical'
 
@@ -25,12 +26,12 @@ const handleResize = ({type, detail}) => {
 </script>
 
 <div
-  class="control-item  {isVertical ? 'vertical' : 'horizontal'}"
+  class="control-item {$$restProps.class} {isVertical ? 'vertical' : 'horizontal'}"
   bind:clientWidth={w}
   bind:clientHeight={h}
-  style="{$$restProps.style};background: hsl(10,5%,26%);"
+  style="{$$restProps.style}"
+  data-size={`${detail.value ?? ''}${detail.unit}`}
 >
-  {detail.value ?? ''}{detail.unit}
   <div
     use:resizable
     on:start={handleResize}
@@ -45,9 +46,11 @@ const handleResize = ({type, detail}) => {
   @apply
   pointer-events-auto
   relative select-none
-  overflow-x-hidden
+  overflow-visible
   text-xs leading-3
-  transform;
+  transform
+  before:absolute before:bg-gray-600
+  before:content-[attr(data-size)] before:overflow-auto;
 
   .resize-bar {
     @apply
@@ -58,15 +61,15 @@ const handleResize = ({type, detail}) => {
   }
 
   &.horizontal {
-    @apply h-3 -translate-y-full;
+    @apply h-0 -translate-y-3 before:w-full before:h-3;
     .resize-bar {
-      @apply top-0 w-px h-full px-0.5 translate-x-1/2 cursor-ew-resize;
+      @apply top-0 w-px h-3 px-0.5 translate-x-1/2 cursor-ew-resize;
     }
   }
   &.vertical {
-    @apply [writing-mode:vertical-lr] w-3 -translate-x-full;
+    @apply [writing-mode:vertical-lr] w-0 -translate-x-3 before:h-full before:w-3;
     .resize-bar {
-      @apply bottom-0 w-full h-px py-0.5 translate-y-1/2 cursor-ns-resize;
+      @apply bottom-0 w-3 h-px py-0.5 translate-y-1/2 translate-x-full cursor-ns-resize;
     }
   }
 }

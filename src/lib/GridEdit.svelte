@@ -1,6 +1,14 @@
+<svelte:window
+  on:scroll={handleSizeChange}
+  on:resize={handleSizeChange}
+  bind:scrollX={scrollX}
+  bind:scrollY={scrollY}
+/>
+
 <script>
   import GridControlBar from './GridControlBar.svelte'
 
+  let scrollX, scrollY
   export let grid = null
 
   $: store = grid?.gridStore
@@ -8,15 +16,15 @@
   $: layout = $gridState.children
   $: cols = $gridState.col
   $: rows = $gridState.row
-  $: target = grid?.container?.getBoundingClientRect()
 
-// let target
-// useRAF(() => target = grid?.container?.getBoundingClientRect())
+  let target
+  const handleSizeChange = () => {
+    target = grid?.container?.getBoundingClientRect()
+  }
+
+  $: handleSizeChange($gridState.width, $gridState.height)
 
   $: childrenElement = grid?.container?.children[0].children
-
-  $: scrollTop = document.scrollingElement.scrollTop
-  $: scrollLeft = document.scrollingElement.scrollLeft
 
   const updateItem = (type, index, data) => {
     store?.updateData(type, index, data)
@@ -29,7 +37,7 @@
 
 <div
   class="grid absolute z-10 opacity-80 pointer-events-none"
-  style="left:{target?.x + scrollLeft}px;top:{target?.y + scrollTop}px;height:{$gridState.height}px;width:{$gridState.width}px;grid-template-columns: {cols.template};grid-template-rows: {rows.template};column-gap: {cols.gap}px;row-gap: {rows.gap}px;"
+  style="left:{target?.x + scrollX}px;top:{target?.y + scrollY}px;height:{$gridState.height}px;width:{$gridState.width}px;grid-template-columns: {cols.template};grid-template-rows: {rows.template};column-gap: {cols.gap}px;row-gap: {rows.gap}px;"
 >
   <GridControlBar
     dataSource={cols}

@@ -77,6 +77,7 @@ const handleSizeChange = (item, index, detail) => {
     <ControlItem
       mode="{mode}"
       detail={item}
+      length={width}
       style="grid-area: {isVertical ? `${i + 1}/1` : `1/${i + 1}`};"
       on:start={() => {
         max = getMaxSize(item.value, item.unit, width)
