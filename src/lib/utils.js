@@ -26,8 +26,8 @@ export const generateCols = (cols) => {
 export const generateRows = (rows) => {
   return genArr(rows, (_, i) => ({
     name: `${PREFIX}r-${i}`,
-    value: null,
-    unit: 'auto',
+    value: 1,
+    unit: 'fr',
   }))
 }
 // export const generateAreas = (layout, cols, rows) => {

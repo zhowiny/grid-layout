@@ -21,7 +21,6 @@
   const handleSizeChange = () => {
     target = grid?.container?.getBoundingClientRect()
   }
-
   $: handleSizeChange($gridState.width, $gridState.height)
 
   $: childrenElement = grid?.container?.children[0].children
@@ -36,8 +35,8 @@
 </script>
 
 <div
-  class="grid absolute z-10 opacity-80 pointer-events-none"
-  style="left:{target?.x + scrollX}px;top:{target?.y + scrollY}px;height:{$gridState.height}px;width:{$gridState.width}px;grid-template-columns: {cols.template};grid-template-rows: {rows.template};column-gap: {cols.gap}px;row-gap: {rows.gap}px;"
+  class="grid fixed z-10 opacity-80 pointer-events-none"
+  style="left:{target?.x}px;top:{target?.y}px;height:{$gridState.height}px;width:{$gridState.width}px;grid-template-columns: {cols.template};grid-template-rows: {rows.template};column-gap: {cols.gap}px;row-gap: {rows.gap}px;"
 >
   <GridControlBar
     dataSource={cols}
@@ -53,10 +52,12 @@
   />
 
   {#each layout as item, i(item.key)}
-    <div class="bg-gray-300" style="grid-area: {childrenElement[i].style.gridArea};width: {childrenElement[i].clientWidth}px;height: {childrenElement[i].clientHeight}px;"></div>
+    {#if childrenElement[i]}
+      <div class="bg-gray-300" style="grid-area: {childrenElement[i].style.gridArea};width: {childrenElement[i].clientWidth}px;height: {childrenElement[i].clientHeight}px;"></div>
+    {/if}
   {/each}
 </div>
-<div class="mockup-window border bg-base-100 h-screen overflow-y-auto">
+<div class="mockup-window sticky top-0 border bg-base-100 h-screen overflow-y-auto">
   <div class="p-4 pt-0">
     <div class="flex flex-col gap-1 w-full">
       <div class="text-md flex justify-between">

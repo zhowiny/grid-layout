@@ -8,7 +8,7 @@ let arr = Array.from({length: 5}, (_, i) => ({key: String.fromCharCode(n + i), i
 let layout = getLayoutData()
 let l2 = getLayoutData()
 let cols = 5
-let rows = 0
+let rows = 4
 
 let grid = null
 let gridChild = null
@@ -40,21 +40,21 @@ const handleClick = () => {
     {/if}
   </aside>
   <main class="place-self-center p-8 w-full" >
-<!--    <button class="btn" on:click={handleClick}>btn</button>-->
+   <button class="btn" on:click={handleClick}>btn</button>
     <GridLayout bind:this={grid} cols="{cols}" rows="{rows}" layout="{layout}" gap={20}>
       {#each arr as {key, i}}
         <div class="bg-gray-600 first:bg-primary-focus/30">
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto autem blanditiis dolore ducimus eligendi enim expedita explicabo fuga, fugiat mollitia nesciunt quas quidem reiciendis repudiandae tempora ullam vitae voluptas voluptatibus!
         </div>
       {/each}
-      <!--<div class="bg-secondary-focus/30" data-grid="-3/-3/span 3/span 2">
+      <div class="bg-secondary-focus/30" data-grid="2/3/span 3/span 3">
 
-        <GridLayout bind:this={gridChild} cols="{2}" rows="{2}" layout="{l2}" gap={1}>
+        <GridLayout wrapperClass="" bind:this={gridChild} cols="{2}" rows="{2}" layout="{l2}" gap={1}>
           {#each arr as {key, i}}
-            <div class="bg-gray-300">{key}-{i}</div>
+            <div class="bg-primary-focus/50">{key}-{i}</div>
           {/each}
         </GridLayout>
-      </div>-->
+      </div>
     </GridLayout>
     <!--<div class="w-96 mt-4">
       <GridLayout cols="{2}" rows="{2}" layout="{l2}" gap={4}>
@@ -74,6 +74,16 @@ const handleClick = () => {
       {/each}
     </GridLayout>-->
   </main>
+  <aside class="h-screen sticky top-0">
+    <!-- material -->
+    <ul>
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+      <li>4</li>
+      <li>5</li>
+    </ul>
+  </aside>
 </div>
 <style lang="scss" module>
 </style>

@@ -36,10 +36,8 @@ $: gridStore.updateSize(width, height)
   bind:clientWidth={width}
   bind:clientHeight={height}
 >
-<!--  style={`width:${width}px; height:${height}px;`}-->
-
   <GridMain
-    class="{$$restProps.class}"
+    class=" w-full h-full {$$restProps.class}"
     layout="{layout}"
     gap={gap}
   >
