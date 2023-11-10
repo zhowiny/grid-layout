@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
+    "build:lib": "vite build --mode=lib && cp README.md ./dist/",
     "preview": "vite preview"
   },
   "devDependencies": {

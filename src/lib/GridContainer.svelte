@@ -1,4 +1,7 @@
-<svelte:options accessors/>
+<svelte:options
+  accessors
+  customElement='grid-layout'
+/>
 <script>
 import {setContext} from 'svelte'
 import GridMain from './GridMain.svelte'
@@ -15,17 +18,24 @@ export let width = 0
 export let height = 0
 export let container
 
-export const gridStore = createGridStore({
+$: dataset = Object.entries(container?.parentNode?.host?.dataset ?? {})
+  .reduce((r, [key, valueString]) => {
+    r[key] = Function(`return ${valueString}`)()
+    return r
+  }, {})
+
+$: options = {
   layout,
   cols,
   rows,
   gap,
-  width,
-  height,
-})
+  ...dataset,
+}
+
+export let gridStore = createGridStore()
 setContext(GRID_STORE_KEY, gridStore)
 
-$: gridStore.reset(layout, cols, rows)
+$: gridStore.init(options)
 $: gridStore.updateSize(width, height)
 
 </script>
@@ -33,20 +43,25 @@ $: gridStore.updateSize(width, height)
 <div
   bind:this={container}
   class="wrapper {wrapperClass}"
+  part="wrapper"
   bind:clientWidth={width}
   bind:clientHeight={height}
 >
   <GridMain
-    class=" w-full h-full {$$restProps.class}"
-    layout="{layout}"
-    gap={gap}
+    class="{$$restProps.class}"
+    layout="{options.layout}"
+    gap={options.gap}
   >
-    <slot></slot>
+    <slot>content</slot>
   </GridMain>
 </div>
 
 <style lang="scss" module>
-.wrapper {
-  @apply relative;
-}
+  :host {
+    @apply block;
+  }
+
+  .wrapper {
+    @apply relative h-full;
+  }
 </style>

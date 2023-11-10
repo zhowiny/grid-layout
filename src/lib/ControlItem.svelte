@@ -4,7 +4,6 @@ import {resizable} from './resizable'
 
 export let mode = 'horizontal'
 export let detail
-export let length = 0
 
 $: isVertical = mode === 'vertical'
 
@@ -26,7 +25,7 @@ const handleResize = ({type, detail}) => {
 </script>
 
 <div
-  class="control-item {$$restProps.class} {isVertical ? 'vertical' : 'horizontal'}"
+  class="control-item {$$restProps.class ?? ''} {isVertical ? 'vertical' : 'horizontal'}"
   bind:clientWidth={w}
   bind:clientHeight={h}
   style="{$$restProps.style}"

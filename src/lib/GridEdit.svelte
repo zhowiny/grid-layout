@@ -7,6 +7,8 @@
 
 <script>
   import GridControlBar from './GridControlBar.svelte'
+  import {onMount} from 'svelte';
+  import {getChildren} from './utils.js';
 
   let scrollX, scrollY
   export let grid = null
@@ -23,7 +25,11 @@
   }
   $: handleSizeChange($gridState.width, $gridState.height)
 
-  $: childrenElement = grid?.container?.children[0].children
+  $: childrenElement = getChildren(grid?.container?.children[0])
+
+  onMount(() => {
+    console.log($gridState)
+  })
 
   const updateItem = (type, index, data) => {
     store?.updateData(type, index, data)
@@ -53,9 +59,14 @@
 
   {#each layout as item, i(item.key)}
     {#if childrenElement[i]}
-      <div class="bg-gray-300" style="grid-area: {childrenElement[i].style.gridArea};width: {childrenElement[i].clientWidth}px;height: {childrenElement[i].clientHeight}px;"></div>
+      <div style="grid-area: {childrenElement[i].style.gridArea};width: {childrenElement[i].clientWidth}px;height: {childrenElement[i].clientHeight}px;"></div>
     {/if}
   {/each}
+    <!-- {#each rows.data as _, i} -->
+    <!--   {#each cols.data as _, j} -->
+    <!--     <div class="bg-primary-focus/20" style="grid-area: {i + 1} / {j + 1} / span 1 / span 1"></div> -->
+    <!--   {/each} -->
+    <!-- {/each} -->
 </div>
 <div class="mockup-window sticky top-0 border bg-base-100 h-screen overflow-y-auto">
   <div class="p-4 pt-0">
@@ -77,14 +88,14 @@
               disabled={item.value === null}
               value={item.value}
               type="number"
-              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              class="join-item flex-1 w-0 input input-number input-bordered input-sm"
               on:input={({target}) => {
                 const value = Number(target.value)
                 updateItem('col', i, {...item, value: isNaN(value) ? 0 : value})
               }}
             />
             <select
-              class="join-item select select-bordered border-gray-500 select-sm w-20"
+              class="join-item select select-bordered select-sm w-20"
               value={item.unit}
               on:change={({target}) => {
                 const unit = target.value
@@ -129,14 +140,14 @@
               disabled={item.value === null}
               value={item.value}
               type="number"
-              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              class="join-item flex-1 w-0 input input-number input-bordered input-sm"
               on:input={({target}) => {
                 const value = Number(target.value)
                 updateItem('row', i, {...item, value: isNaN(value) ? 0 : value})
               }}
             />
             <select
-              class="join-item select select-bordered border-gray-500 select-sm w-20"
+              class="join-item select select-bordered select-sm w-20"
               value={item.unit}
               on:change={({target}) => {
                 const unit = target.value
@@ -177,7 +188,7 @@
           <div class="join bordered">
             <input
               type="number"
-              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              class="join-item flex-1 w-0 input input-number input-bordered input-sm"
               value={item.x}
               on:input={({target}) => {
                 const value = Number(target.value)
@@ -186,7 +197,7 @@
             />
             <input
               type="number"
-              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              class="join-item flex-1 w-0 input input-number input-bordered input-sm"
               value={item.y}
               on:input={({target}) => {
                 const value = Number(target.value)
@@ -195,7 +206,7 @@
             />
             <input
               type="number"
-              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              class="join-item flex-1 w-0 input input-number input-bordered input-sm"
               value={item.w}
               on:input={({target}) => {
                 const value = Number(target.value)
@@ -204,7 +215,7 @@
             />
             <input
               type="number"
-              class="join-item flex-1 w-0 input input-number input-bordered border-gray-500 input-sm"
+              class="join-item flex-1 w-0 input input-number input-bordered input-sm"
               value={item.h}
               on:input={({target}) => {
                 const value = Number(target.value)

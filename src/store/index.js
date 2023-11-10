@@ -11,16 +11,13 @@ const toUnitMap = arr => arr.reduce((m, {unit, value}) => {
   return m
 }, new Map())
 
-export function createGridStore(options = {}) {
-  const {layout, cols, rows, width, height, ...others} = options
-  const {colsArr, rowsArr} = getColsOrRows(layout, cols, rows)
+export function createGridStore() {
+  const layoutStore = writable([])
+  const colsStore = writable([])
+  const rowsStore = writable([])
+  const sizeStore = writable({})
 
-  const layoutStore = writable(layout)
-  const colsStore = writable(colsArr)
-  const rowsStore = writable(rowsArr)
-  const sizeStore = writable({width, height})
-
-  const otherOptions = writable(others)
+  const otherOptions = writable({})
 
   const gridState = derived([
     sizeStore, layoutStore, colsStore, rowsStore, otherOptions,
@@ -57,18 +54,19 @@ export function createGridStore(options = {}) {
     }
   })
 
-  const reset = (layout, cols, rows) => {
-    layoutStore.set(layout)
+  const init = (options) => {
+    let {layout, cols, rows, width, height, ...others} = options
     const {colsArr, rowsArr} = getColsOrRows(layout, cols, rows)
+    layoutStore.set(layout)
     colsStore.set(colsArr)
     rowsStore.set(rowsArr)
+    otherOptions.set(others)
   }
 
   const findSourceByType = type => typeof type === 'string' ? ({
     col: colsStore,
     row: rowsStore,
     layout: layoutStore,
-    size: sizeStore,
   }[type]) : undefined
 
   // todo key允许嵌套
@@ -90,15 +88,14 @@ export function createGridStore(options = {}) {
   }
 
   const updateSize = (w, h) => {
-    updateData('size', 'width', w)
-    updateData('size', 'height', h)
+    sizeStore.set({width: w, height: h})
   }
 
   return {
     layoutStore,
     colsStore,
     rowsStore,
-    reset,
+    init,
     updateData,
     deleteData,
     updateSize,
