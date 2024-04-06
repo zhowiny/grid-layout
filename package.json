@@ -1,13 +1,24 @@
 {
-  "name": "grid-layout",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@zhowiny/grid-layout",
+  "version": "0.0.0-alpha.4",
+  "description": "grid layout",
+  "main": "grid-layout.js",
+  "keywords": [
+    "grid",
+    "layout"
+  ],
+  "author": "zhowiny",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhowiny/grid-layout"
+  },
   "type": "module",
   "packageManager": "pnpm@8.6.0",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "build:lib": "vite build --mode=lib && cp README.md ./dist/",
+    "build:lib": "vite build --mode=lib && cp README.md ./dist/ && cp package.json ./dist/",
     "preview": "vite preview"
   },
   "devDependencies": {
